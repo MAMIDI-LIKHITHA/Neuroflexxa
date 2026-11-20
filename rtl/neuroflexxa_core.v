@@ -31,19 +31,24 @@ module neuroflexxa_core #(
     wire accept_input = in_valid && in_ready;
     assign in_ready = !out_valid || out_ready;
 
-    // Sign-extend before summing. The [1,2,1]/4 FIR has unity DC gain.
-    wire signed [SAMPLE_WIDTH+1:0] x_ext =
-        {{2{in_sample[SAMPLE_WIDTH-1]}}, in_sample};
-    wire signed [SAMPLE_WIDTH+1:0] d1_ext =
-        {{2{sample_d1[SAMPLE_WIDTH-1]}}, sample_d1};
-    wire signed [SAMPLE_WIDTH+1:0] d2_ext =
-        {{2{sample_d2[SAMPLE_WIDTH-1]}}, sample_d2};
+    // Portable FIR module: current sample, one-sample history, two-sample history.
+    wire signed [SAMPLE_WIDTH-1:0] fir_value;
+    neuroflexxa_fir3 #(
+        .SAMPLE_WIDTH(SAMPLE_WIDTH),
+        .COEFF_WIDTH(8),
+        .OUTPUT_WIDTH(SAMPLE_WIDTH),
+        .ACC_WIDTH(SAMPLE_WIDTH + 10),
+        .FRAC_BITS(2),
+        .COEFF0(1), .COEFF1(2), .COEFF2(1)
+    ) fir_filter (
+        .x0(in_sample),
+        .x1(sample_d1),
+        .x2(sample_d2),
+        .y(fir_value)
+    );
 
-    wire signed [SAMPLE_WIDTH+1:0] fir_sum =
-        x_ext + (d1_ext <<< 1) + d2_ext;
-    wire signed [SAMPLE_WIDTH+1:0] fir_value = fir_sum >>> 2;
-    wire [SAMPLE_WIDTH+1:0] magnitude =
-        fir_value[SAMPLE_WIDTH+1] ? -fir_value : fir_value;
+    wire [SAMPLE_WIDTH-1:0] magnitude =
+        fir_value[SAMPLE_WIDTH-1] ? -fir_value : fir_value;
 
     always @(posedge clk) begin
         if (!rst_n) begin
@@ -58,7 +63,7 @@ module neuroflexxa_core #(
             // Replacing a consumed output or filling an empty output slot.
             out_valid <= in_valid;
             if (accept_input) begin
-                out_sample    <= fir_value[SAMPLE_WIDTH-1:0];
+                out_sample    <= fir_value;
                 out_event     <= (magnitude >= EVENT_THRESHOLD);
                 out_timestamp <= sample_count;
                 sample_d2     <= sample_d1;

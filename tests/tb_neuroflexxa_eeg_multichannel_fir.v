@@ -63,8 +63,8 @@ module tb_neuroflexxa_eeg_multichannel_fir;
         push(-16'sd8,  2'd2, -16'sd2);
         push(16'sd40,  2'd3, 16'sd10);
 
-        // Stall the output and ensure input is not accepted and payload is stable.
-        @(negedge clk);
+        // The push task returns on a falling edge with channel 3's result valid.
+        // Stall immediately, before another rising edge can consume that result.
         in_valid = 1; in_sample = 16'sd16; in_channel_id = 2'd0;
         out_ready = 0;
         #1;
@@ -83,7 +83,7 @@ module tb_neuroflexxa_eeg_multichannel_fir;
         if (!out_valid || out_sample !== 16'sd12 || out_channel_id !== 2'd0)
             $fatal(1, "FAIL: channel history lost across backpressure");
 
-        // Out-of-range channel ID is rejected (four configured channels).
+        // Channel 3 retains its own history after channel 0 traffic.
         @(negedge clk);
         in_valid = 1; in_channel_id = 2'd3; in_sample = 16'sd1;
         out_ready = 1;
@@ -91,7 +91,7 @@ module tb_neuroflexxa_eeg_multichannel_fir;
         if (!in_ready) $fatal(1, "FAIL: valid channel should be ready");
         // Channel 3 is valid; verify its first-sample response.
         tick();
-        if (!out_valid || out_sample !== 16'sd0 || out_channel_id !== 2'd3)
+        if (!out_valid || out_sample !== 16'sd20 || out_channel_id !== 2'd3)
             $fatal(1, "FAIL: channel-3 independent history check");
 
         @(negedge clk); in_valid = 0;

@@ -3,6 +3,10 @@
 module tb_neuroflexxa_fir3;
     reg signed [15:0] x0, x1, x2;
     wire signed [15:0] y;
+    integer fd, scan_result, count;
+    integer expected;
+    integer a, b, c;
+    reg [1023:0] vector_path;
 
     neuroflexxa_fir3 #(
         .SAMPLE_WIDTH(16), .COEFF_WIDTH(8), .OUTPUT_WIDTH(16),
@@ -10,29 +14,31 @@ module tb_neuroflexxa_fir3;
         .COEFF0(1), .COEFF1(2), .COEFF2(1)
     ) dut (.x0(x0), .x1(x1), .x2(x2), .y(y));
 
-    task check;
-        input integer a, b, c, expected;
-        begin
-            x0=a; x1=b; x2=c; #1;
-            if ($signed(y) !== expected) begin
-                $display("FAIL FIR: x0=%0d x1=%0d x2=%0d got=%0d expected=%0d",
-                         a,b,c,$signed(y),expected);
-                $fatal(1);
+    initial begin
+        if (!$value$plusargs("VECTORS=%s", vector_path))
+            $fatal(1, "Missing +VECTORS=<path>");
+        fd = $fopen(vector_path, "r");
+        if (fd == 0) $fatal(1, "Could not open reference vectors: %0s", vector_path);
+
+        count = 0;
+        while (!$feof(fd)) begin
+            scan_result = $fscanf(fd, "%d %d %d %d\n", a, b, c, expected);
+            if (scan_result == 4) begin
+                x0 = a; x1 = b; x2 = c;
+                #1;
+                if ($signed(y) !== expected) begin
+                    $display("FAIL FIR vector %0d: x0=%0d x1=%0d x2=%0d got=%0d expected=%0d",
+                             count, a, b, c, $signed(y), expected);
+                    $fatal(1);
+                end
+                count = count + 1;
+            end else if (!$feof(fd)) begin
+                $fatal(1, "Malformed reference vector near row %0d", count);
             end
         end
-    endtask
-
-    initial begin
-        check(400,0,0,100);       // impulse, first tap
-        check(0,400,0,200);       // impulse, middle tap
-        check(0,0,400,100);       // impulse, last tap
-        check(40,40,40,40);       // unity DC gain
-        check(-400,0,0,-100);     // negative signed result
-        check(-10,0,0,-3);        // arithmetic shift rounds toward -infinity
-        check(32767,32767,32767,32767); // full-scale steady input
-        check(-32768,-32768,-32768,-32768);
-        check(0,0,0,0);
-        $display("PASS: parameterized FIR directed vectors (9 cases)");
+        $fclose(fd);
+        if (count < 1) $fatal(1, "No reference vectors were checked");
+        $display("PASS: FIR RTL matched Python reference model (%0d vectors)", count);
         $finish;
     end
 endmodule

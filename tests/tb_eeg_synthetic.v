@@ -41,7 +41,7 @@ module tb_eeg_synthetic;
         // Exact integer results for y[n]=(x[n]+2*x[n-1]+x[n-2]) >>> 2.
         expected[0]=0;   expected[1]=2;   expected[2]=10;  expected[3]=15;
         expected[4]=10;  expected[5]=0;   expected[6]=-10; expected[7]=-15;
-        expected[8]=-10; expected[9]=-2;  expected[10]=0; expected[11]=75;
+        expected[8]=-10; expected[9]=-3;  expected[10]=0; expected[11]=75;
         expected[12]=150; expected[13]=75;
 
         repeat (2) @(negedge clk);

@@ -44,6 +44,10 @@ docs/                Architecture, interface and EEG workload specifications
 LIMITATIONS.md       Intended-use and evidence limitations
 ```
 
+## Platform strategy
+
+The RTL is being kept vendor-neutral. No FPGA board, device family or vendor toolchain has been selected. Portable synthesizable RTL and simulation are kept separate from future platform-specific clocking, pin constraints and IP wrappers. See [portability policy](docs/PORTABILITY.md) and [RTL coding standard](docs/RTL_CODING_STANDARD.md).
+
 ## Workload parameters still open
 
 EEG channel count, sampling frequency, ADC resolution/encoding, input scaling, filter passband, fixed-point format, FPGA device/board and output interface have not been selected. Current RTL defaults are testbench conveniences only. See [docs/EEG_WORKLOAD_SPEC.md](docs/EEG_WORKLOAD_SPEC.md).

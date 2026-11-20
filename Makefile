@@ -6,12 +6,14 @@ RTL := rtl/neuroflexxa_fir3.v rtl/neuroflexxa_core.v
 CORE_TB := tests/tb_neuroflexxa_core.v
 EEG_TB := tests/tb_eeg_synthetic.v
 FIR_TB := tests/tb_neuroflexxa_fir3.v
+ADAPTER_TB := tests/tb_neuroflexxa_eeg_stream_adapter.v
 CORE_SIM := $(BUILD_DIR)/neuroflexxa_core_tb
 EEG_SIM := $(BUILD_DIR)/neuroflexxa_eeg_tb
 FIR_SIM := $(BUILD_DIR)/neuroflexxa_fir3_tb
+ADAPTER_SIM := $(BUILD_DIR)/neuroflexxa_eeg_stream_adapter_tb
 FIR_VECTORS := $(BUILD_DIR)/fir_reference_vectors.txt
 
-.PHONY: all test test-core test-eeg test-fir clean
+.PHONY: all test test-core test-eeg test-fir test-eeg-adapter clean
 all: test
 
 $(BUILD_DIR):
@@ -29,6 +31,12 @@ $(FIR_VECTORS): tools/fir_reference.py | $(BUILD_DIR)
 $(FIR_SIM): rtl/neuroflexxa_fir3.v $(FIR_TB) $(FIR_VECTORS) | $(BUILD_DIR)
 	$(IVERILOG) -g2012 -Wall -s tb_neuroflexxa_fir3 -o $(FIR_SIM) rtl/neuroflexxa_fir3.v $(FIR_TB)
 
+$(ADAPTER_SIM): rtl/neuroflexxa_eeg_stream_adapter.v $(ADAPTER_TB) | $(BUILD_DIR)
+	$(IVERILOG) -g2012 -Wall -s tb_neuroflexxa_eeg_stream_adapter -o $(ADAPTER_SIM) rtl/neuroflexxa_eeg_stream_adapter.v $(ADAPTER_TB)
+
+test-eeg-adapter: $(ADAPTER_SIM)
+	$(VVP) $(ADAPTER_SIM)
+
 test-core: $(CORE_SIM)
 	$(VVP) $(CORE_SIM)
 
@@ -38,7 +46,7 @@ test-eeg: $(EEG_SIM)
 test-fir: $(FIR_SIM)
 	$(VVP) $(FIR_SIM) +VECTORS=$(FIR_VECTORS)
 
-test: test-core test-eeg test-fir
+test: test-core test-eeg test-fir test-eeg-adapter
 
 clean:
 	rm -rf $(BUILD_DIR)

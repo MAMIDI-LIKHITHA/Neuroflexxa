@@ -7,7 +7,7 @@ Neuroflexxa is an early engineering prototype exploring a deterministic streamin
 ## Current implementation
 
 - Ready/valid streaming input and output.
-- Three-tap demonstration FIR with coefficients [1, 2, 1] / 4.
+- Reusable parameterized signed three-tap FIR module (default demonstration coefficients [1, 2, 1] / 4).
 - Absolute-amplitude threshold event tagging.
 - Relative sample index.
 - One-entry output register with backpressure stability.
@@ -23,11 +23,12 @@ Requirements: Icarus Verilog (`iverilog`), `vvp`, and GNU Make.
 make test
 ```
 
-Run only one suite:
+Run an individual suite:
 
 ```sh
 make test-core
 make test-eeg
+make test-fir
 ```
 
 Expected success messages:
@@ -39,7 +40,7 @@ Expected success messages:
 ```text
 rtl/                 Synthesizable Verilog RTL
 tests/               Self-checking core and synthetic EEG testbenches
-docs/                Architecture, interface and EEG workload specifications
+docs/                Architecture, interface, FIR and EEG workload specifications
 .github/workflows/   Continuous-integration smoke test
 LIMITATIONS.md       Intended-use and evidence limitations
 ```

@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 // Portable parameterized three-tap signed FIR combinational datapath.
 // Products are accumulated at ACC_WIDTH, arithmetic-shifted by FRAC_BITS,
 // then truncated to OUTPUT_WIDTH (two's-complement wrap; no saturation).

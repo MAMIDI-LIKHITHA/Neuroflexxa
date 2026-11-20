@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 // Neuroflexxa v0.1.0-alpha
 // Simulation-first streaming biosignal prototype.
 // No clinical or hardware performance claims are implied.

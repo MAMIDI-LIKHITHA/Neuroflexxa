@@ -88,7 +88,23 @@ module tb_neuroflexxa_eeg_stream_adapter;
         @(negedge clk); out_ready = 0; rst_n = 0;
         tick();
         if (out_valid !== 1'b0) $fatal(1, "FAIL: reset did not clear valid");
-        $display("PASS: EEG stream adapter reset, signed payload, channel tag, and backpressure");
+
+        // Re-enable the adapter and exercise both signed 16-bit endpoints.
+        @(negedge clk); rst_n = 1;
+        send_sample(16'sh7fff, 2'd2);
+        if (!out_valid || out_sample !== 16'sh7fff || out_channel_id !== 2'd2)
+            $fatal(1, "FAIL: maximum positive sample boundary");
+
+        @(negedge clk); out_ready = 1;
+        tick();
+        if (out_valid !== 1'b0) $fatal(1, "FAIL: positive boundary did not drain");
+
+        @(negedge clk); out_ready = 0;
+        send_sample(-16'sh8000, 2'd1);
+        if (!out_valid || out_sample !== -16'sh8000 || out_channel_id !== 2'd1)
+            $fatal(1, "FAIL: maximum negative sample boundary");
+
+        $display("PASS: EEG stream adapter reset, signed endpoints, channel tags, and backpressure");
         $finish;
     end
 endmodule

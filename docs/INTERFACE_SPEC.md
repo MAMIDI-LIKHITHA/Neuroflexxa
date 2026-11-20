@@ -4,11 +4,11 @@
 
 | Parameter | Default | Meaning |
 |---|---:|---|
-| `SAMPLE_WIDTH` | 16 | Signed two's-complement input/output sample width |
-| `TIMESTAMP_WIDTH` | 32 | Width of relative sample index |
-| `EVENT_THRESHOLD` | 100 | Absolute filtered-sample threshold, in input-code units |
+| `SAMPLE_WIDTH` | 16 | Signed two's-complement sample width |
+| `TIMESTAMP_WIDTH` | 32 | Relative sample-index width |
+| `EVENT_THRESHOLD` | 100 | Demonstration absolute-amplitude threshold |
 
-These defaults are testbench values only. They are not recommended clinical or sensor settings.
+Defaults are simulation conveniences only. They are not EEG acquisition recommendations or clinical settings.
 
 ## Input
 
@@ -18,7 +18,7 @@ These defaults are testbench values only. They are not recommended clinical or s
 | `rst_n` | in | Active-low synchronous reset |
 | `in_valid` | in | Input sample is valid |
 | `in_ready` | out | Core can accept a sample |
-| `in_sample` | in | Signed sample |
+| `in_sample` | in | Signed fixed-width sample |
 
 A sample is accepted on a rising edge when `in_valid && in_ready`.
 
@@ -29,15 +29,15 @@ A sample is accepted on a rising edge when `in_valid && in_ready`.
 | `out_valid` | out | Output record is valid |
 | `out_ready` | in | Downstream can consume output |
 | `out_sample` | out | Filtered signed sample |
-| `out_event` | out | Threshold event flag |
+| `out_event` | out | Demonstration threshold flag |
 | `out_timestamp` | out | Relative sample index |
 
 The output record is consumed on a rising edge when `out_valid && out_ready`. All output fields remain stable while `out_valid && !out_ready`.
 
-## Reset
+## Reset and timestamp
 
-Reset is synchronous and active-low. Reset clears filter history, sample index, and output-valid state. The first two output samples after reset therefore include zero-valued filter history.
+Reset is synchronous and active-low. It clears filter history, sample index and output-valid state. The first two output samples therefore include zero-valued filter history. Timestamp zero is assigned to the first accepted sample after reset.
 
-## Workload decisions still open
+## EEG interface decisions still open
 
-The project has not yet selected EEG, EMG, or ECG as its first workload. Sampling frequency, ADC resolution/encoding, channel count, physical FPGA target, output transport, and numerical thresholds remain uncommitted. Do not present the defaults as measured or validated workload parameters.
+The following are not yet defined: channel count, sampling frequency, ADC resolution/encoding, input voltage scaling, sample packing, external clocking, FPGA target and output transport. The present interface is a simulation boundary, not a sensor/ADC interface.

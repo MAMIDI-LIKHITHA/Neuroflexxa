@@ -12,6 +12,7 @@ Neuroflexxa is an early engineering prototype exploring a deterministic streamin
 - Relative sample index.
 - One-entry output register with backpressure stability.
 - Core regression plus synthetic EEG-path regression.
+- Python-generated, deterministic golden vectors compared against the standalone FIR RTL.
 
 The filter and threshold are demonstration logic, not validated EEG processing. The synthetic test vectors are not physiological recordings or a clinical signal model. This is not evidence of FPGA timing, resource utilization, power, sensor-to-action latency, or clinical performance.
 
@@ -29,6 +30,7 @@ Run an individual suite:
 make test-core
 make test-eeg
 make test-fir
+make test-fir
 ```
 
 Expected success messages:
@@ -39,7 +41,8 @@ Expected success messages:
 
 ```text
 rtl/                 Synthesizable Verilog RTL
-tests/               Self-checking core and synthetic EEG testbenches
+tests/               Self-checking core, synthetic EEG and FIR testbenches
+tools/               Python fixed-point FIR reference model
 docs/                Architecture, interface, FIR and EEG workload specifications
 .github/workflows/   Continuous-integration smoke test
 LIMITATIONS.md       Intended-use and evidence limitations

@@ -1,42 +1,39 @@
 # Architecture — v0.1.0-alpha
 
-## Scope
+## Scope and first workload
 
-The first implementation is a small, simulation-first streaming datapath. It is intended to validate basic RTL structure, signed arithmetic, ready/valid flow control, event tagging, and reproducible simulation. It is not yet a complete biosignal processor.
+EEG is the first target workload. The current implementation remains a generic streaming datapath exercised with synthetic engineering vectors; it is not an EEG interpretation or clinical algorithm.
 
-## Data path
+## Current data path
 
 ```text
-signed sample
+signed synthetic sample
     |
-    v
 ready/valid input
     |
-    v
-3-tap FIR: y[n] = (x[n] + 2x[n-1] + x[n-2]) / 4
+3-tap demonstration FIR: y[n] = (x[n] + 2x[n-1] + x[n-2]) >>> 2
     |
-    v
-absolute-amplitude threshold
+absolute-amplitude threshold tag
     |
-    +---- event flag
-    |
-    v
 one-entry elastic output register
     |
-    v
-sample + event + relative sample index
+filtered sample + event flag + relative sample index
 ```
 
-The FIR uses coefficients [1, 2, 1] / 4. Arithmetic is signed two's-complement; the sum is widened before addition and shifted arithmetically. The event flag is asserted when the absolute filtered value is greater than or equal to the configured threshold.
+The FIR coefficients [1, 2, 1] / 4 and threshold are deliberately simple test values. They are not selected EEG filter coefficients or clinically meaningful thresholds.
 
 ## Flow control
 
-A transfer occurs on a rising clock edge when both `valid` and `ready` are high. The output register can accept a new sample when it is empty or when the current output is being consumed. While `out_valid=1` and `out_ready=0`, output payload fields remain stable and input history does not advance.
+A transfer occurs on a rising clock edge when both valid and ready are high. The output register accepts a new sample when empty or when the current output is consumed. While `out_valid=1` and `out_ready=0`, output payload fields remain stable and input history does not advance.
 
 ## Timestamp semantics
 
-`out_timestamp` is a relative sample index beginning at zero after reset. It is not wall-clock time and cannot be converted to seconds without a separately specified and validated sample rate.
+`out_timestamp` is a relative sample index beginning at zero after reset. It is not wall-clock time and cannot be converted to seconds until a sampling frequency is specified.
 
-## Current exclusions
+## EEG decisions still open
 
-This baseline does not yet implement configurable band-pass/notch filtering, artifact rejection, workload-specific event algorithms, feature-window aggregation, sensor interfaces, DMA, host communications, clock-domain crossing, or board-specific constraints. These should be added only after the first workload and interface are agreed.
+Channel count, sampling frequency, ADC representation, input scaling, filter passband, coefficient quantization, target FPGA and output transport are not yet specified. See [EEG workload specification](EEG_WORKLOAD_SPEC.md).
+
+## Not implemented
+
+No multi-channel scheduler, configurable EEG band-pass/notch filter, artifact rejection, feature-window aggregation, EEG event classifier, sensor interface, DMA, host communications, CDC, board constraints or hardware measurement flow is implemented yet.

@@ -18,7 +18,7 @@ The filter and threshold are demonstration logic, not validated EEG processing. 
 
 ## Quick start
 
-Requirements: Icarus Verilog (`iverilog`), `vvp`, and GNU Make.
+Requirements: Python 3, Icarus Verilog (`iverilog`), `vvp`, and GNU Make.
 
 ```sh
 make test
@@ -29,7 +29,6 @@ Run an individual suite:
 ```sh
 make test-core
 make test-eeg
-make test-fir
 make test-fir
 ```
 

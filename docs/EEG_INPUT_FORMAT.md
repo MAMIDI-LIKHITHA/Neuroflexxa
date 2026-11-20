@@ -46,4 +46,4 @@ The following must be decided from the intended acquisition hardware and workloa
 
 ## Verification
 
-`tests/tb_neuroflexxa_eeg_stream_adapter.v` checks reset, positive and negative sample transport, channel-tag preservation, payload stability under backpressure, and simultaneous dequeue/enqueue. This is RTL interface verification only; it is not EEG signal-quality, physiological, clinical, or hardware validation.
+`tests/tb_neuroflexxa_eeg_stream_adapter.v` checks reset, positive and negative sample transport, signed minimum/maximum boundary values, channel-tag preservation, payload stability under backpressure, simultaneous dequeue/enqueue, and reset. This is RTL interface verification only; it is not EEG signal-quality, physiological, clinical, or hardware validation.

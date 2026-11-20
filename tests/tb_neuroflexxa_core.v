@@ -81,6 +81,7 @@ module tb_neuroflexxa_core;
         in_sample = 40;
         in_valid = 1'b1;
         @(posedge clk);
+        #1;
         if (!out_valid) $fatal(1, "FAIL: expected valid output under stall");
         begin : stable_check
             reg signed [15:0] held_sample;

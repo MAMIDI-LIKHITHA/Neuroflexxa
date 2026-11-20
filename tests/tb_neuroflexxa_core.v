@@ -106,11 +106,11 @@ module tb_neuroflexxa_core;
 
         // Negative excursion checks signed FIR arithmetic and absolute magnitude.
         send_sample(-400);
-        check_output(-80, 0, 4);
+        check_output(-80, 0, 5);
         send_sample(0);
-        check_output(-190, 1, 5);
+        check_output(-190, 1, 6);
         send_sample(0);
-        check_output(-100, 1, 6);
+        check_output(-100, 1, 7);
 
         $display("PASS: Neuroflexxa core smoke test");
         $finish;

@@ -65,6 +65,7 @@ module tb_neuroflexxa_eeg_stream_adapter;
         in_sample = -16'sd2048;
         in_channel_id = 2'd3;
         out_ready = 1;
+        #1; // Allow the combinational ready path to settle after changing out_ready.
         if (!in_ready) $fatal(1, "FAIL: expected simultaneous dequeue/enqueue readiness");
         tick();
         if (!out_valid || out_sample !== -16'sd2048 || out_channel_id !== 2'd3)
